@@ -1,19 +1,17 @@
-const {MongoClient} = require("mongodb");
-const dotenv = require("dotenv");
-dotenv.config();
+const express = require("express");
+const {db} = require("./database");
+const server = express();
+server.use(express.json());
 
-const {SECRET_URL} = process.env;
+server.get("/users", async (req, res) => {
+  const result = await db.users.find().toArray();
+  res.json(result);
+});
 
-async function main() {
-  const connection = await MongoClient.connect(SECRET_URL);
+server.post("/users", async (req, res) => {
+  const {username, age, prof} = req.body;
+  const result = await db.users.insertOne({username, age, prof});
+  res.json(result);
+});
 
-  const database = connection.db("nackademin");
-
-  const collection = database.collection("users");
-
-  const users = await collection.find().toArray();
-
-  console.log(users);
-}
-
-main();
+server.listen(5050);
